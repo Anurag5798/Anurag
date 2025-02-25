@@ -1,0 +1,66 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+df = pd.read_csv('IPLData.csv')
+print(df)
+print(df.info())
+print(df.isnull().sum())
+print(df.describe())
+df.fillna(df.median(numeric_only=True), inplace=True)
+for col in df.select_dtypes(include=['object']).columns:
+    df[col].fillna(df[col].mode()[0], inplace=True)
+print(df.isnull().sum())
+
+top_run_scorers = df[['Player Name', 'Team', 'Runs']].sort_values(by='Runs', ascending=False).head(5)
+print(top_run_scorers)
+plt.figure(figsize=(8,5))
+sns.barplot(data=top_run_scorers, x="Runs", y="Player Name", palette="viridis")
+plt.xlabel("Total Runs")
+plt.ylabel("Player Name")
+plt.title("Top 5 Run Scorers in IPL")
+plt.show()
+
+top_wicket_takers = df[['Player Name', 'Team', 'Wickets']].sort_values(by='Wickets', ascending=False).head(5)
+print(top_wicket_takers)
+plt.figure(figsize=(14,5))
+sns.barplot(data=top_wicket_takers, x="Wickets", y="Player Name", palette="coolwarm")
+plt.xlabel("Total Wickets")
+plt.ylabel("Player Name")
+plt.title("Top 5 Wicket-Takers in IPL")
+plt.show()
+
+team_performance = df.groupby('Team').agg({'Runs': 'sum', 'Wickets': 'sum'}).reset_index()
+print(team_performance)
+plt.figure(figsize=(10,5))
+sns.barplot(data=team_performance, x="Runs", y="Team", palette="magma")
+plt.xlabel("Total Runs")
+plt.ylabel("Team")
+plt.title("Total Runs by Each Team")
+plt.show()
+plt.figure(figsize=(10,5))
+sns.barplot(data=team_performance, x="Wickets", y="Team", palette="Blues_r")
+plt.xlabel("Total Wickets")
+plt.ylabel("Team")
+plt.title("Total Wickets by Each Team")
+plt.show()
+
+nationality_performance = df.groupby('Nationality').agg({'Runs': 'mean', 'Average': 'mean', 'Wickets': 'mean'}).reset_index()
+print(nationality_performance)
+plt.figure(figsize=(8,5))
+sns.barplot(data=nationality_performance.melt(id_vars=["Nationality"]), x="variable", y="value", hue="Nationality", palette="pastel")
+plt.xlabel("Metric")
+plt.ylabel("Average Value")
+plt.title("Comparison of Indian vs Overseas Players")
+plt.show()
+
+capped_performance = df.groupby('Capped').agg({'Runs': 'mean', 'Average': 'mean', 'Wickets': 'mean'}).reset_index()
+print(capped_performance)
+plt.figure(figsize=(8,5))
+sns.barplot(data=capped_performance.melt(id_vars=["Capped"]), x="variable", y="value", hue="Capped", palette="Set2")
+plt.xlabel("Metric")
+plt.ylabel("Average Value")
+plt.title("Capped vs Uncapped Players' Performance")
+plt.show()
